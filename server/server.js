@@ -1,4 +1,9 @@
+// @ts-check
+
 import { createServer } from "node:http";
+import { createReadStream } from "node:fs";
+import { Readable } from "node:stream";
+import { WritableStream } from "node:stream/web";
 
 const PORT = 3000;
 
@@ -16,8 +21,23 @@ export const server = createServer(async (request, response) => {
     return;
   }
 
+  let items = 0;
+  Readable.toWeb(createReadStream("./animeflv.csv")).pipeTo(
+    new WritableStream({
+      /** @param {Uint8Array} chunk  */
+      write(chunk) {
+        items++;
+        response.write(chunk);
+      },
+
+      close() {
+        response.end();
+      },
+    })
+  );
+
   response.writeHead(204, headers);
-  response.end("ok");
+  // response.end("ok");
 })
   .listen(PORT)
   .on("listening", (_) => console.log(`server is running at ${PORT}`));
