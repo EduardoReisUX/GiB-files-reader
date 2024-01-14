@@ -6,6 +6,7 @@ import { Readable, Transform } from "node:stream";
 import { WritableStream, TransformStream } from "node:stream/web";
 
 import csvtojson from "csvtojson";
+import { setTimeout } from "node:timers/promises";
 
 const PORT = 3000;
 
@@ -26,6 +27,7 @@ async function handler(request, response) {
   }
 
   let items = 0;
+  request.once("close", () => console.log("connection was closed!", items));
   const readStream = createReadStream;
   const readFileStream = readStream("./animeflv.csv");
   const webReadStream = Readable.toWeb(readFileStream);
@@ -51,7 +53,8 @@ async function handler(request, response) {
     .pipeTo(
       new WritableStream({
         /** @param {Uint8Array} chunk  */
-        write(chunk) {
+        async write(chunk) {
+          await setTimeout(1000);
           items++;
           response.write(chunk);
         },
