@@ -28,42 +28,43 @@ async function handler(request, response) {
 
   let items = 0;
   request.once("close", () => console.log("connection was closed!", items));
-  const readStream = createReadStream;
-  const readFileStream = readStream("./animeflv.csv");
-  const webReadStream = Readable.toWeb(readFileStream);
-  const webTransformStream = Transform.toWeb;
 
-  webReadStream
-    .pipeThrough(webTransformStream(csvtojson()))
-    .pipeThrough(
-      new TransformStream({
-        transform(chunk, controller) {
-          const data = JSON.parse(Buffer.from(chunk).toString());
-          const mappedData = {
-            title: data.title,
-            description: data.description,
-            url_anime: data.url_anime,
-          };
+  const readFileStream = createReadStream("./animeflv.csv");
+  const webReadFileStream = Readable.toWeb(readFileStream);
 
-          // Quebra de linha pois é um NDJSON
-          controller.enqueue(JSON.stringify(mappedData).concat("\n"));
-        },
-      })
-    )
-    .pipeTo(
-      new WritableStream({
-        /** @param {Uint8Array} chunk  */
-        async write(chunk) {
-          await setTimeout(1000);
-          items++;
-          response.write(chunk);
-        },
+  const convertCsvToJson = Transform.toWeb(csvtojson());
 
-        close() {
-          response.end();
-        },
-      })
-    );
+  const enqueueMappedData = new TransformStream({
+    transform(chunk, controller) {
+      const data = JSON.parse(Buffer.from(chunk).toString());
+      const mappedData = {
+        title: data.title,
+        description: data.description,
+        url_anime: data.url_anime,
+      };
+
+      // Quebra de linha pois é um NDJSON
+      controller.enqueue(JSON.stringify(mappedData).concat("\n"));
+    },
+  });
+
+  const sendToClient = new WritableStream({
+    /** @param {Uint8Array} chunk  */
+    async write(chunk) {
+      await setTimeout(1000);
+      items++;
+      response.write(chunk);
+    },
+
+    close() {
+      response.end();
+    },
+  });
+
+  webReadFileStream
+    .pipeThrough(convertCsvToJson)
+    .pipeThrough(enqueueMappedData)
+    .pipeTo(sendToClient);
 
   response.writeHead(200, headers);
 }
