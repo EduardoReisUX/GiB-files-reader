@@ -1,3 +1,13 @@
+body {
+  font-family: sans-serif;
+  text-align: center;
+}
+
+.container {
+  padding: 1rem;
+  text-align: start;
+}
+
 .grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -7,6 +17,7 @@
 
 .grid > article {
   border: 1px solid #ccc;
+  border-radius: 8px;
 }
 
 .grid .text {
