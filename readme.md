@@ -46,6 +46,40 @@ Read -> Transform -> Write
 
 During this project, I've picked up important skills and a better understanding of complex ideas, which improved my logical thinking.
 
+### When to use Node.js Stream and Web Stream API
+
+Node.js Streams and Web Streams APIs are both used for handling streaming data, but they are used in different scenarios and have different features.
+
+Node.js Streams are typically used in server-side development, especially when dealing with large amounts of data. They provide a way to handle streaming data, allowing you to work with large files or network connections without consuming a lot of memory. Node.js Streams also provide features like backpressure, which helps prevent overloading the system by controlling the rate of data flow [Source 3](https://nodejs.org/api/stream.html).
+
+Here's an example of creating a Readable Stream in Node.js:
+
+```javascript
+const fs = require('fs');
+const readStream = fs.createReadStream('input.txt');
+readStream.on('data', (chunk) => {
+ console.log(chunk);
+});
+```
+
+On the other hand, Web Streams APIs are part of the browser's standard library and are used for handling streaming data in client-side development. They provide a consistent interface for working with streams of data, whether they come from network requests, file inputs, or other sources. Web Streams APIs also support features like asynchronous iteration and transferring streams between workers [Source 2](https://developer.mozilla.org/en-US/docs/Web/API/Streams_API).
+
+Here's an example of creating a ReadableStream in the browser:
+
+```javascript
+const response = await fetch('https://example.com/file.txt');
+const reader = response.body.getReader();
+let result = '';
+while (true) {
+ const { done, value } = await reader.read();
+ if (done) break;
+ result += new TextDecoder("utf-8").decode(value);
+}
+console.log(result);
+```
+
+In summary, use Node.js Streams when you're working with server-side data handling, particularly with large data sets or network connections. Use Web Streams APIs when you're working with client-side data handling, including handling streams of data from network requests or file inputs.
+
 ### Dealing with CORS without frameworks
 
 Letting anyone in anyway access the server.
