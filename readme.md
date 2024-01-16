@@ -28,11 +28,15 @@ from CSV to JSON **and** extracting only the data that we want, such as anime ti
 
 The Transform Stream send the transformed chunk to the **Write Stream**, to which, finally, send the desired data to the client. Bit by Bit.
 
+![Flow of server reading a file, transforming and writing with streams](github/server-streams.png)
+
 ### Client side
 
 The client can consume the API. It works by sending a request to the server, and it will receive the data in chunks (via a **Readable Stream**) encoded in Newline Delimited JSON (NDJSON). The chunk will be decoded to string and parsed to JSON by a **Transform Stream**. 
 
 Finally, with the JSON data in hands, a **Write Stream** will display to the client.
+
+![Flow of client reading, transforming and writing with streams](github/client-streams.png)
 
 ### Tldr
 
